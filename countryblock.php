@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:       CountryBlock Plugin
  * Plugin URI:        #
- * Description:       Simple plugin to hide content by country code.. Use with shortcode [hfc code="IN,UA,RU" ][/hfc] or function 
+ * Description:       Simple plugin to hide content by country code. Use with shortcode [hfc code="IN,UA,RU" ][/hfc] or function blacklist("IN,UA,RU");
  * Version:           1.0.0
  * Author:            Olexandr Chimera
  * Author URI:        https://weekdays.te.ua
@@ -20,6 +20,7 @@
 class countryblock {
 
     private $prefix = null;
+    private $api = null;
     private static $instance = null;
 
     public static function get_instance() {
@@ -33,14 +34,21 @@ class countryblock {
      * Constructor
      */
     private function __construct() {
+        
         $this->prefix = 'hfc';
+        $this->api = 'http://ip-api.com/json/';
+        
         //add shortcode
         add_shortcode($this->prefix, [&$this, 'ip_stop_code']);
     }
 
+    /**
+     * Shortcode
+     */
     public function ip_stop_code($atts, $content = null) {
         $a = shortcode_atts(array(
-            'code' => NULL
+            'code' => NULL,
+            'show' => 'no'
                 ), $atts);
 
         $cc = $this->get_cc_by_ip($this->get_ip());
@@ -64,7 +72,7 @@ class countryblock {
     private function get_cc_by_ip($remote) {
 
         if (false === ($json = get_transient($this->prefix . $remote))) {
-            $service_url = "http://ip-api.com/json/" . $remote;
+            $service_url = $this->api . $remote;
             try {
                 if ($json = file_get_contents($service_url)) {
                     $obj = json_decode($json);
