@@ -1,23 +1,23 @@
 <?php
 
 /**
- * CountryBlock plugin
+ * CountryHide plugin
  *
  * @link              https://weekdays.te.ua
  * @since             1.0.0
- * @package           CountryBlock
+ * @package           CountryHide
  *
  * @wordpress-plugin
- * Plugin Name:       CountryBlock Plugin
+ * Plugin Name:       CountryHide Plugin
  * Plugin URI:        #
  * Description:       Simple plugin to hide content by country code. Use with shortcode [hfc code="IN,UA,RU" ][/hfc] or function blacklist("IN,UA,RU");
  * Version:           1.0.0
- * Author:            Olexandr Chimera
+ * Author:            org100h
  * Author URI:        https://weekdays.te.ua
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
-class countryblock {
+class countryhide {
 
     private $prefix = null;
     private $api = null;
@@ -101,9 +101,9 @@ class countryblock {
 
 }
 
-$countryblock = countryblock::get_instance();
+$countryhide = countryhide::get_instance();
 
 function blacklist($attr) {
-    $countryblock = countryblock::get_instance();
-    return $countryblock->hfc_($attr);
+    $countryhide = countryhide::get_instance();
+    return $countryhide->hfc_($attr);
 }
