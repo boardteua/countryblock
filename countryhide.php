@@ -30,20 +30,36 @@ class countryhide {
         return self::$instance;
     }
 
-    /**
-     * Constructor
-     */
     private function __construct() {
-        
+
         $this->prefix = 'hfc';
         $this->api = 'http://ip-api.com/json/';
-        
+
         //add shortcode
         add_shortcode($this->prefix, [&$this, 'ip_stop_code']);
     }
 
     /**
-     * Shortcode
+     * 
+     * @param string $cc
+     * @return boolean
+     */
+    public function hfc_($cc) {
+
+        $cc = $this->get_cc_by_ip($this->get_ip());
+
+        if (!in_array($cc, explode(',', $cc))) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * 
+     * @param array $atts
+     * @param string $content
+     * @return string
      */
     public function ip_stop_code($atts, $content = null) {
         $a = shortcode_atts(array(
@@ -59,6 +75,10 @@ class countryhide {
         }
     }
 
+    /**
+     * 
+     * @return string ip
+     */
     private function get_ip() {
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
             return $_SERVER['HTTP_CLIENT_IP'];
@@ -69,10 +89,15 @@ class countryhide {
         }
     }
 
-    private function get_cc_by_ip($remote) {
+    /**
+     * 
+     * @param string $ip
+     * @return string
+     */
+    private function get_cc_by_ip($ip) {
 
-        if (false === ($json = get_transient($this->prefix . $remote))) {
-            $service_url = $this->api . $remote;
+        if (false === ($json = get_transient($this->prefix . $ip))) {
+            $service_url = $this->api . $ip;
             try {
                 if ($json = file_get_contents($service_url)) {
                     $obj = json_decode($json);
@@ -80,25 +105,13 @@ class countryhide {
             } catch (Exeption $e) {
                 error_log('An error occurred. ' . $e);
             }
-            set_transient($this->prefix . $remote, $json, DAY_IN_SECONDS);
+            set_transient($this->prefix . $ip, $json, DAY_IN_SECONDS);
         } else {
             $obj = json_decode($json);
         }
 
         return $obj->countryCode;
     }
-
-    public function hfc_($atts) {
-
-        $cc = $this->get_cc_by_ip($this->get_ip());
-
-        if (!in_array($cc, explode(',', $atts))) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
 }
 
 $countryhide = countryhide::get_instance();
