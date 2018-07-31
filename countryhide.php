@@ -36,7 +36,7 @@ class countryhide {
         $this->api = 'http://ip-api.com/json/';
 
         //add shortcode
-        add_shortcode($this->prefix, [&$this, 'ip_stop_code']);
+        add_shortcode($this->prefix, [$this, 'ip_stop_code']);
     }
 
     /**
@@ -44,7 +44,7 @@ class countryhide {
      * @param string $cc
      * @return boolean
      */
-    public function hfc_($cc) {
+    public function hfc($cc) {
 
         $cc = $this->get_cc_by_ip($this->get_ip());
 
@@ -56,6 +56,8 @@ class countryhide {
     }
 
     /**
+     * 
+     * add_shortcode($this->prefix, [&$this, 'ip_stop_code']);
      * 
      * @param array $atts
      * @param string $content
@@ -76,17 +78,36 @@ class countryhide {
     }
 
     /**
-     * 
+     * Advanced Method to Retrieve Client IP Address
      * @return string ip
      */
     private function get_ip() {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            return $_SERVER['REMOTE_ADDR'];
+        $ip_keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR');
+        foreach ($ip_keys as $key) {
+            if (array_key_exists($key, $_SERVER) === true) {
+                foreach (explode(',', $_SERVER[$key]) as $ip) {
+                    // trim for safety measures
+                    $ip = trim($ip);
+                    // attempt to validate IP
+                    if ($this->validate_ip($ip)) {
+                        return $ip;
+                    }
+                }
+            }
         }
+        return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
+    }
+
+    /**
+     * Ensures an ip address is both a valid IP and does not fall within
+     * a private network range.
+     * @return boolean 
+     */
+    private function validate_ip($ip) {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -95,7 +116,6 @@ class countryhide {
      * @return string
      */
     private function get_cc_by_ip($ip) {
-
         if (false === ($json = get_transient($this->prefix . $ip))) {
             $service_url = $this->api . $ip;
             try {
@@ -112,11 +132,13 @@ class countryhide {
 
         return $obj->countryCode;
     }
+
 }
 
-$countryhide = countryhide::get_instance();
-
-function blacklist($attr) {
+function blacklist($attr = NULL) {
     $countryhide = countryhide::get_instance();
-    return $countryhide->hfc_($attr);
+    if ($attr)
+        return $countryhide->hfc($attr);
 }
+
+blacklist();
