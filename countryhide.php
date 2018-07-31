@@ -44,11 +44,11 @@ class countryhide {
      * @param string $cc
      * @return boolean
      */
-    public function hfc($cc) {
+    public function hfc($attr) {
 
         $cc = $this->get_cc_by_ip($this->get_ip());
 
-        if (!in_array($cc, explode(',', $cc))) {
+        if (!in_array($cc, explode(',', $attr))) {
             return false;
         } else {
             return true;
