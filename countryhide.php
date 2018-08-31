@@ -68,12 +68,20 @@ class countryhide {
             'code' => NULL,
             'show' => 'no'
                 ), $atts);
-
-        $cc = $this->get_cc_by_ip($this->get_ip());
-        if (!in_array($cc, explode(',', $a['code']))) {
-            return do_shortcode($content);
+        if ($a['show'] == 'yes') {
+            $cc = $this->get_cc_by_ip($this->get_ip());
+            if (in_array($cc, explode(',', $a['code']))) {
+                return do_shortcode($content);
+            } else {
+                return '<span><!-- Show only on ' . $cc . '--></span>';
+            }
         } else {
-            return '<span><!-- hide for ' . $cc . '--></span>';
+            $cc = $this->get_cc_by_ip($this->get_ip());
+            if (!in_array($cc, explode(',', $a['code']))) {
+                return do_shortcode($content);
+            } else {
+                return '<span><!-- hide for ' . $cc . '--></span>';
+            }
         }
     }
 
