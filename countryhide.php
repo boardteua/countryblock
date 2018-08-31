@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:       CountryHide Plugin
  * Plugin URI:        #
- * Description:       Simple plugin to hide content by country code. Use with shortcode [hfc code="IN,UA,RU" ][/hfc] or function blacklist("IN,UA,RU");
+ * Description:       Simple plugin to hide content by country code. Use with shortcode [hfc code="IN,UA,RU" show="yes" ][/hfc] or function blacklist("IN,UA,RU");
  * Version:           1.0.0
  * Author:            org100h
  * Author URI:        https://weekdays.te.ua
